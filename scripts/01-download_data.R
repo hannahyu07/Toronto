@@ -35,5 +35,5 @@ write_csv(
   file = "inputs/data/raw_homicide_data.csv"
 )
 
-        
+
 
