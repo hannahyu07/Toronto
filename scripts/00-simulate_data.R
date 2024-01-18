@@ -18,11 +18,13 @@ library(opendatatoronto)
 #### Simulate data ####
 
 #### Data expectations ####
-# There are a similar number of subdivisions per ward
-# Voter turnout varies by ward
-# Wards with more subdivisions will have a higher turnout
+# The year, month, and day variables contain values within their specified ranges.
+# The weekday variable only include the days of the week from Monday to Sunday.
+# The homicide_type variable only include the following categories: "Shooting," "Stabbing," and "Other." 
+# The neighborhood_number variable include integers ranging from 1 to 158.
+# Columns: year, month, day, weekday, homicide_type, neighborhood_number
 
-#### Simulate voter turnout by ward ####
+#### Simulate Toronto Homicide Data ####
 #based on code from: https://tellingstorieswithdata.com/02-drinking_from_a_fire_hose.html#simulate
 
 set.seed(853)
