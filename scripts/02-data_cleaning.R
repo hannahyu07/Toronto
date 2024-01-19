@@ -1,11 +1,11 @@
 #### Preamble ####
-# Purpose: Cleans the raw plane data recorded by two observers..... [...UPDATE THIS...]
+# Purpose: Cleans the raw plane data recorded by two observers.....  
 # Author: Hannah Yu
 # Date: 19 January 2023  
 # Contact: realhannah.yu@mail.utoronto.ca 
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites:  
+# Any other information needed? 
 
 #### Workspace setup ####
 library(tidyverse)
