@@ -67,6 +67,7 @@ cleaned_homicide_data <-
   cleaned_homicide_data |>
   group_by(occurrence_year)|>
   mutate(homicide_count = n())
+head(cleaned_homicide_data)
 
 
 #### Save data ####
