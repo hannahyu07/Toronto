@@ -61,7 +61,13 @@ cleaned_homicide_data <-
            between(lubridate::month(occurrence_date), 9, 11) ~ "Fall",
            TRUE ~ "Winter")
   )
-    
+
+# Count the occurrence of homicides by year #
+cleaned_homicide_data <- 
+  cleaned_homicide_data |>
+  group_by(occurrence_year)|>
+  mutate(homicide_count = n())
+
 
 #### Save data ####
 write_csv(

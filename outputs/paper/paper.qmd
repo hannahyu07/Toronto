@@ -2,8 +2,8 @@
 title: "Hannah Yu"
 subtitle: "My subtitle if needed"
 author: 
-  - First author
-thanks: "Code and data are available at: LINK."
+  - Hannah Yu
+thanks: "Code and data are available at: ."
 date: today
 date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
@@ -17,8 +17,18 @@ bibliography: references.bib
 #| warning: false
 #| message: false
 
+
+#### Workspace set-up ####
+
+
+## Load packages
 library(tidyverse)
 library(palmerpenguins)
+library(ggplot2)
+
+#read in cleaned data #
+cleaned_homicide_data <- read.csv(here::here("inputs/data/cleaned_homicide_data.csv"))
+show_col_types = FALSE
 ```
 
 
@@ -39,13 +49,30 @@ Some of our data is of penguins (@fig-bills), from @palmerpenguins.
 #| fig-cap: Bills of penguins
 #| echo: false
 
-ggplot(penguins, aes(x = island, fill = species)) +
-  geom_bar(alpha = 0.8) +
-  scale_fill_manual(values = c("darkorange","purple","cyan4"),
-                    guide = "none") +
-  theme_minimal() +
-  facet_wrap(~species, ncol = 1) +
-  coord_flip()
+ggplot(cleaned_homicide_data, aes(x = homicide_type)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Homicide Types",
+       x = "Homicide Types",
+       y = "Count") +
+  theme_minimal()
+
+# ggplot(penguins, aes(x = island, fill = species)) +
+#   geom_bar(alpha = 0.8) +
+#   scale_fill_manual(values = c("darkorange","purple","cyan4"),
+#                     guide = "none") +
+#   theme_minimal() +
+#   facet_wrap(~species, ncol = 1) +
+#   coord_flip()
+```
+
+```{r}
+ggplot(cleaned_homicide_data, aes(x = occurrence_year, y = count, group = 1)) +
+  geom_line(color = "blue") +
+  geom_point(color = "blue") +
+  labs(title = "Homicide Occurrences Over the Years",
+       x = "Year",
+       y = "Number of Homicides") +
+  theme_minimal()
 ```
 
 Talk more about it.
