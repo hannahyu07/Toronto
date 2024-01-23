@@ -1,11 +1,10 @@
 #### Preamble ####
-# Purpose: Downloads and saves the data from [...UPDATE THIS...]
-# Author: Hannah Yu [...UPDATE THIS...]
-# Date: 17 January 2024 [...UPDATE THIS...]
-# Contact: realhannah.yu@mail.utoronto.ca [...UPDATE THIS...]
+# Purpose: Downloads and saves the data from OpenData Toronto portal
+# Author: Hannah Yu 
+# Date: 17 January 2024  
+# Contact: realhannah.yu@mail.utoronto.ca 
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: None
 
 
 #### Workspace setup ####

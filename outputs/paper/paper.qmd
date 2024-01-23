@@ -2,7 +2,7 @@
 title: "Hannah Yu"
 author: 
   - Hannah Yu
-thanks: "Code and data are available at: "
+thanks: "Code and data are available at: https://github.com/hannahyu07/Toronto-Homicide-Analysis"
 date: today
 date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
@@ -33,21 +33,19 @@ show_col_types = FALSE
 ```
 
 
-## Introduction
+# Introduction
 
 The homicide rate plays a pivotal role in assessing the state of violence in society. In 2022, Canadian police services documented 874 cases of homicide, with 2.25 homicides per 100,000 people. With an 8% increase in the national homicide rate, this increase signifies the fourth consecutive annual rise in the national homicide rate [@citestatscan]. As one of Canada’s most vibrant and diverse cities, Toronto is the home of 2.93 million people. Toronto’s safety and stability are extremely important for all the residents of the city. Understanding the patterns, factors, and implications is important in ensuring Toronto’s public safety and establishing targeted interventions. 
 
 This research seeks to analyze the spatial and temporal distribution of Toronto’s homicide cases. By investigating whether specific times or certain areas are prone to be associated with homicide incidents, we want to shed light on the dynamics of and think about addressing and preventing future prevention for homicide cases. 
 
-The Police Annual Statistical Report - Homicides [@citehomicidedata] from [@ropendatatoronto] provides a record of all homicide cases in Toronto from 2004-2020 including the time of occurrence, location, and type of homicide. we could draw information about homicide cases and their related characteristics from this extensive dataset, and investigate Toronto’s homicide patterns across time. In Section 2, I introduce the dataset and some general information. In Section 2.1 ## General Homicide Analysis, I navigate the change in homicide case numbers across time with various characteristics and perform some analysis on the relationship between homicide cases and time variables. And in Section 2.2, I redo most of the analysis on the top five neighborhood with the most amount of homicide cases. Lastly, I discuss the implications and further discussions on these results in Section 3. 
+The Police Annual Statistical Report - Homicides [@citehomicidedata] from [@ropendatatoronto] provides a record of all homicide cases in Toronto from 2004-2020 including the time of occurrence, location, and type of homicide. we could draw information about homicide cases and their related characteristics from this extensive dataset, and investigate Toronto’s homicide patterns across time. In @sec-data, I introduce the dataset and some general information. In @subsec1-data, I navigate the change in homicide case numbers across time with various characteristics and perform some analysis on the relationship between homicide cases and time variables. And in @subsec2-data, I redo most of the analysis on the top five neighborhood with the most amount of homicide cases. Lastly, I discuss the implications and further discussions on these results in @sec-discussion.
 
 
-The remainder of this paper is structured as follows. @sec-data....
 
+# Data {#sec-data}
 
-## Data {#sec-data}
-
-To investigate the homicide cases in Toronto, I obtained the dataset “ Police Annual Statistical Report - Homicides [@citehomicidedata] from the Toronto Open Data Portal [@ropendatatoronto]. Data was cleaned and analyzed using the open source statistical programming language R [@citer], with additional support from 'tidyverse' [@rtidyverse], 'dplyr' [@rdplyr], 'janitor'[@rjanitor], 'readr' [@rreadr] , 'stringr' [@rstringr], 'lubridate' [@rlubridate], 'ggplot2' [@rggplot2], 'kableExtra' [@rkableExtra], ''  Further details about data extraction and analyzation processes will be discussed in the following sections below. 
+To investigate the homicide cases in Toronto, I obtained the dataset “ Police Annual Statistical Report - Homicides [@citehomicidedata] from the Toronto Open Data Portal [@ropendatatoronto]. Data was cleaned and analyzed using the open source statistical programming language R [@citer], with additional support from 'tidyverse' [@rtidyverse], 'dplyr' [@rdplyr], 'janitor'[@rjanitor], 'readr' [@rreadr] , 'stringr' [@rstringr], 'lubridate' [@rlubridate], 'ggplot2' [@rggplot2], 'kableExtra' [@rkableExtra], 'gt'[@rgt]. Further details about data extraction and analyzation processes will be discussed in the following sections below. 
 
 This dataset includes a thorough list of alongside every homicide case in Toronto from the year 2004-2020. We cleaned the dataset and selected variables that are relevant to our analysis of homicide cases. Our variable of interest includes the year the offence occurred, type of homicide (shooting, stabbing, other), date of offence, and identifier of neighborhood using Toronto’s 140 neighborhood structure. In addition to these variables, we also constructed three more variables: day of the week when the offence occurred (Monday-Sunday), season when the offence occurred (fall, winter, spring, summer), and count of homicide cases by year to further aid our data analysis [@tbl-cleaned_data]. This dataset was last refreshed on January 11, 2024. 
 
@@ -65,7 +63,7 @@ head (cleaned_homicide_data, 5) |>
   )
 
 ```
-## General Homicide Analysis
+## General Homicide Analysis {#subsec1-data}
 
 We listed out the number of homicide cases each year in @tbl-homicide_count and created the summary statistics table of the homicide count per year. We found the year 2011 has the least cases of homicide with only 51 cases while the year 2018 with the total of 97 cases has the most number of homicide cases. 
 
@@ -229,7 +227,7 @@ ggplot(cleaned_homicide_data, aes(x = hood_id)) +
 
 
 ```
-## Homicide Analysis in Top Five Neighborhood
+## Homicide Analysis in Top Five Neighborhood {#subsec2-data}
 
 Having observed the obvious significantly higher cases of homicide in several neighborhoods, I selected the five neighborhoods with the highest amount of homicide cases and performed the following analysis that focus on these five neighborhoods. The ids of the five neighborhoods are 73, 25, 132, 26, 2 respectively with neighborhood 73 having the highest number of cases of 31 and neighborhood 2 with 28 cases. Through these analysis, we could understand if there is specific patterns or trends in the occurrence of homicide incidences in these top five neighborhoods and genearlize the conclusion in larger areas. 
 
@@ -402,7 +400,7 @@ type_relationship_df |>
 ```
 `
 
-## Discussion
+# Discussion {#sec-discussion}
 
 The result of our general analysis of homicide cases by season and by each day of the week throughout Toronto generally align with our specific focus into the top five highest homicide cases neighborhoods. We cannot obverse any significant correlation between homicidece occurrences and particular timings. Homicides may have a slightly higher chance in occurring on a weekend than weekdays and are not more likely to occur in a particular season. 
 

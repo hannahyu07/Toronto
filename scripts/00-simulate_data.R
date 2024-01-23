@@ -1,11 +1,11 @@
 #### Preamble ####
-# Purpose: Simulates... [...UPDATE THIS...]
+# Purpose: Simulates homicide data
 # Author: Hannah Yu [...UPDATE THIS...]
 # Date: 17 January 2024 [...UPDATE THIS...]
-# Contact: realhannah.yu@mail.utoronto.ca [...UPDATE THIS...]
+# Contact: realhannah.yu@mail.utoronto.ca 
 # License: MIT
-# Pre-requisites: [...UPDATE THIS...]
-# Any other information needed? [...UPDATE THIS...]
+# Pre-requisites: None
+
 
 
 #### Workspace setup ####
@@ -35,14 +35,14 @@ num_obs <- 1398
 
 simulated_data <- 
   tibble(
-    year = sample(2004:2023, num_obs, replace = TRUE),
+    year = sample(2004:2020, num_obs, replace = TRUE),
     month = sample(1:12, num_obs, replace = TRUE),
     day = sample(1:31, num_obs, replace = TRUE),
     weekday = sample(c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
                        "Friday", "Saturday"), num_obs, replace = TRUE),
     homicide_type = sample(c("Shooting", "Stabbing", "Other"),  num_obs,
                            replace = TRUE),
-    neighborhood_number = sample(1:158, num_obs, replace = TRUE),
+    neighborhood_number = sample(1:140, num_obs, replace = TRUE),
 )
 
 
@@ -70,17 +70,17 @@ ggplot(simulated_data, aes(x = neighborhood_number)) +
 # Check the year of homicide occurrence is between 2004-2023
 
 simulated_data$year |> min() == 2004
-simulated_data$year |> max() == 2023
+simulated_data$year |> max() == 2020
 
 # Check the day of homicide occurrence is between 1-31
 
 simulated_data$day |> min() == 1
 simulated_data$day |> max() == 31
 
-# Check the neighborhood number is between 1-158
+# Check the neighborhood number is between 1-140
 
 simulated_data$neighborhood_number |> min() == 1
-simulated_data$neighborhood_number |> max() == 158
+simulated_data$neighborhood_number |> max() == 140
 
 # Check homicide type is character 
 
