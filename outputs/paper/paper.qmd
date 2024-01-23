@@ -23,8 +23,8 @@ bibliography: references.bib
 
 ## Load packages
 library(tidyverse)
-library(palmerpenguins)
 library(ggplot2)
+library(kableExtra)
 
 #read in cleaned data #
 cleaned_homicide_data <- read.csv(here::here("inputs/data/cleaned_homicide_data.csv"))
@@ -34,6 +34,8 @@ show_col_types = FALSE
 
 # Introduction
 
+
+
 You can and should cross-reference sections and sub-sections. 
 
 The remainder of this paper is structured as follows. @sec-data....
@@ -42,12 +44,65 @@ The remainder of this paper is structured as follows. @sec-data....
 
 # Data {#sec-data}
 
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+To investigate the homicide cases in Toronto, I obtained the dataset “ Police Annual Statistical Report - Homicides (@citehomicidedata) from the Toronto Open Data Portal (@ropendatatoronto). Data was cleaned and analyzed using the open source statistical programming language R [@citer], with additional support from 'tidyverse' [@rtidyverse], 'ggplot2' [@rggplot2], 'kableExtra' [@rkableExtra],  Further details about data extraction and analyzation processes will be discussed in the following sections below. 
+
+This dataset includes a thorough list of alongside every homicide case in Toronto from the year 2004-2020. We cleaned the dataset and selected variables that are relevant to our analysis of homicide cases. Our variable of interest includes the year the offence occurred, police division where the offence occurred, type of homicide (shooting, stabbing, other), date of offence, and identifier of neighbourhood using Toronto’s 158 neighbourhood structure. In addition to these variables, we also constructed three more variables: day of the week when the offence occurred (Monday-Sunday), weekend? season when the offence occurred (fall, winter, spring, summer), and count of homicide cases by year to further aid our data analysis (See summary statistics). This dataset was last refreshed on January 11, 2024. 
+
 
 ```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
+#| message: false
 #| echo: false
+#| label: tbl-cleaned_data
+#| tbl-cap: Sample of Cleaned Homicide Data
+
+head (cleaned_homicide_data, 5) |>
+  kable(
+    col.names = c("Year", "Division", "Homicide Type", "Date", "Hood ID", "Day of the Week", "Season", "Homicide Count"),
+  booktabs = TRUE
+  )
+
+```
+We listed out the number of homicide cases each year in Table 2 and created the summary statistics table of the homicide count per year. We found the year 2011 has the least cases of homicide with only 51 cases while the year 2018 with the total of 97 cases has the most number of homicide cases. 
+
+```{r}
+#| message: false
+#| echo: false
+#| label: tbl-homicide_count
+#| tbl-cap: Total Homicide Cases Each Year
+
+# Assuming 'occurrence_year' is the column containing the year information
+homicide_counts_by_year <- cleaned_homicide_data |>
+  group_by(occurrence_year) |>
+  summarise(total_cases = n())
+#installed.packages("git")
+library(gt)
+
+homicide_counts_by_year %>%
+  gt() %>%
+  tab_header(
+    title = "Total Homicide Cases Each Year"
+  ) %>%
+  fmt_number(
+    columns = vars(total_cases),
+    decimals = 0
+  )
+
+# # Assuming 'occurrence_year' is the column containing the year information
+# homicide_counts_by_year <- cleaned_homicide_data |>
+#   group_by(occurrence_year) |>
+#   summarise(total_cases = n())
+# 
+# # Print the resulting table
+# kable(homicide_counts_by_year, caption = "Total Homicide Cases Each Year")
+
+```
+Of all the homicide cases, the cases caused by shooting is significantly higher than other type of homicides. In the years of our examination, shooting takes up more than 600 cases of homicides while stabbing takes over more than 250, and all other types together takes up around 300. 
+
+```{r,out.width='20%', echo=FALSE}
+#| message: false
+#| echo: false
+#| label: fig - distribution_by_type
+#| fig-cap: Distribution of Homicide Types
 
 ggplot(cleaned_homicide_data, aes(x = homicide_type)) +
   geom_bar(fill = "skyblue", color = "black") +
@@ -56,82 +111,412 @@ ggplot(cleaned_homicide_data, aes(x = homicide_type)) +
        y = "Count") +
   theme_minimal()
 
-# ggplot(penguins, aes(x = island, fill = species)) +
-#   geom_bar(alpha = 0.8) +
-#   scale_fill_manual(values = c("darkorange","purple","cyan4"),
-#                     guide = "none") +
-#   theme_minimal() +
-#   facet_wrap(~species, ncol = 1) +
-#   coord_flip()
 ```
+We then shift our attention to the homicide trend over time. Figure 2 portrays the trend of homicide cases throughout the span of almost 2 decades. With the obvious fluctuations, We do not observe a clear increase or decrease of cases across time. However, the homicide cases are decreasing after it peaked in 2018. 
 
+Following the grand picture across time, Figure 3 breaks down the homicide cases over time into further details based on the type of homicide. The trend of the three types of homicide cases generally follow the overall trend in figure 2. Shooting always prevail over other types of homicide cases even in its lowest year. We conclude that there is no clear increase or decrease of homicide across time. 
 ```{r}
-ggplot(cleaned_homicide_data, aes(x = occurrence_year, y = count, group = 1)) +
+#| message: false
+#| echo: false
+#| label: fig-occurrence
+#| fig-cap: Homicide Occurrences Over Years
+summarized_homicide_data <- cleaned_homicide_data |>
+  group_by(occurrence_year) |>
+  summarise(homicide_count = n())
+
+ggplot(cleaned_homicide_data, aes(x = occurrence_year, y = homicide_count, group = 1)) +
   geom_line(color = "blue") +
   geom_point(color = "blue") +
-  labs(title = "Homicide Occurrences Over the Years",
+  labs(title = "Homicide Occurrences Over Years",
        x = "Year",
        y = "Number of Homicides") +
   theme_minimal()
 ```
-
-Talk more about it.
-
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
-
 ```{r}
-#| label: fig-planes
-#| fig-cap: Relationship between wing length and width
-#| echo: false
-#| warning: false
 #| message: false
+#| echo: false
+#| label: fig-specific_occurrence
+#| fig-cap: Total Homicide Cases Over Years by Homicide Type
 
-analysis_data <- read_csv(here::here("outputs/data/analysis_data.csv"))
+count_by_type <- cleaned_homicide_data |>
+  group_by(occurrence_year, homicide_type) |>
+  summarise(total_cases = n(), .groups = 'drop_last')
 
-analysis_data |> 
-  ggplot(aes(x = width, y = length)) +
-  geom_point(alpha = 0.8) +
-  theme_minimal() +
-  labs(x = "Wing width (mm)",
-       y = "Wing length (mm)")
+ggplot(count_by_type,
+       aes(x = occurrence_year, y = total_cases, color = homicide_type)) +
+  geom_line() + 
+  labs(title = "Total Homicide Cases Over Years by Homicide Type",
+       x = "Year",
+       y = "Total Cases",
+       color = "Homicide Type") +
+  theme_minimal()
+
+
 ```
 
-Talk way more about it. 
+We want to determine whether if there are a specific time in the year when homicides are more likely to occurr. To investigate our interest, we created figure 4 that displays the homicide counts by every day of the week. Sunday with a total of 200 cases is the day with the most cases following by Saturday and Friday with 197 and 175 respectively. Thursday is the day with the least cases with 124 cases. We conclude that homicides are more likely to occur in weekends. 
+
+```{r}
+#| message: false
+#| echo: false
+#| include: false
+#| label: tbl-casebyweek
+#| tbl-cap: Case_by_week
+
+homicide_counts_by_day <- cleaned_homicide_data %>%
+  group_by(day_of_week) %>%
+  summarise(total_cases = n())
+
+print(homicide_counts_by_day)
+
+```
+
+
+```{r}
+#| message: false
+#| echo: false
+#| label: fig-case_by_week1
+#| fig-cap: Distribution of Homicide Cases by Day of the Week
+
+cleaned_homicide_data$day_of_week <- factor(cleaned_homicide_data$day_of_week, 
+                                             levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
+
+ggplot(cleaned_homicide_data, aes(x = day_of_week, fill = day_of_week)) +
+  geom_bar() +
+  labs(title = "Distribution of Homicide Cases by Day of the Week",
+       x = "Day of the Week",
+       y = "Number of Homicides") +
+  theme_minimal()
+
+```
+
+We perform similar analysis with the count of homicide cases by season and found that the seasonal data are distributed somewhat evenly with fall having slightly more cases than other weather but the differnece is to small and not worth noting. 
+```{r}
+#| message: false
+#| echo: false
+#| label: tbl-case_by_season
+#| tbl-cap: Distribution of Homicide Cases by Season
+
+cleaned_homicide_data$season <- factor(cleaned_homicide_data$season, 
+                                             levels = c("Fall", "Winter", "Spring", "Summer"))
+ggplot(cleaned_homicide_data, aes(x = factor(season), fill = season)) +
+  geom_bar() +
+  labs(title = "Distribution of Homicide Cases by Season",
+       x = "Season",
+       y = "Number of Homicides") +
+  theme_minimal()
+```
+To investigate the relationship between geographical location and homicide cases, we constructed figure . This bar plot illustrates the distribution of homicide cases in Toronto's 140 neighborhoods. This visualization enables the identification of patterns or areas of concerns in the city. While most neighborhoods have fewer than 10 cases, we notice that several neighborhoods stand out with significantly higher homicide incidences compared to the rest. 
+
+```{r}
+#| message: false
+#| echo: false
+#| label: fig-neighborhoods_distribution
+#| fig-cap: Distribution of Homicide in Neighborhoods
+
+nei<- cleaned_homicide_data %>%
+  group_by(hood_id) %>%
+  summarise(total_cases = n())
+
+ggplot(cleaned_homicide_data, aes(x = hood_id)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Homicide Cases in 140 Neighborhoods",
+       x = "Neighborhood Number",
+       y = "Number of Homicide Cases") +
+  theme_minimal()
 
 
 
-# Model
-
-The goal of our modelling strategy is twofold. Firstly,...
-
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
-
-## Model set-up
-
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
-
-\begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
-\end{align}
-
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
+```
 
 
-### Model justification
+```{r}
+ #| message: false
+ #| echo: false
+ #| include: false
+ #| label: tbl-top_neighborhood_table
+ #| tbl-cap: Top Neighborhood Table
+ 
+ top_hood_table <- cleaned_homicide_data %>%
+   group_by(hood_id) %>%
+   summarise(total_homicides = n()) %>%
+   arrange(desc(total_homicides)) %>%
+   head(5) %>%
+   inner_join(cleaned_homicide_data, by = "hood_id") %>%
+   select(hood_id, season, day_of_week, occurrence_year, homicide_type)
+ 
+ # Print the resulting table
+ print(top_hood_table)
 
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
+```
 
-We can use maths by including latex between dollar signs, for instance $\theta$.
+```{r}
+#| message: false
+#| echo: false
+#| include: false
+#| label: tbl-top _eighborhood_table2
+#| tbl-cap: Top Neighborhood Table 2
+
+top5_frequent_hood <- cleaned_homicide_data %>%
+  group_by(hood_id) %>%
+  summarise(total_occurrences = n()) %>%
+  arrange(desc(total_occurrences)) %>%
+  head(5)
+
+# Print or further analyze the top 5 frequent divisions
+top5_frequent_hood
+```
+```{r}
+# #| message: false
+# #| echo: false
+# #| label: tbl-top5_season
+# #| tbl-cap: Homicide Cases in Most Frequent Neighborhoods by Season
+# 
+# # Find the top 5 neighborhoods
+# top_neighborhoods <- cleaned_homicide_data |>
+#   group_by(hood_id) |>
+#   summarise(total_cases = n()) |>
+#   arrange(desc(total_cases)) |>
+#   top_n(5)
+# 
+# # Filter data for the top 5 neighborhoods
+# top_neighborhood_data <- cleaned_homicide_data |>
+#   filter(hood_id %in% top_neighborhoods$hood_id)
+# 
+# # Create a table with the relationship between season and the number of cases in the top 5 neighborhoods
+# season_relationship_table <- top_neighborhood_data |>
+#   group_by(hood_id, season) |>
+#   summarise(total_cases = n()) |>
+#   arrange(hood_id, desc(total_cases))
+# 
+# season_relationship_table$hood_id <- factor(season_relationship_table$hood_id,
+#                                              levels = c("73", "25", "132", "26", "2"))
+# # Transform the dataframe to the format required for printing as a table
+# season_relationship_df <- season_relationship_table |>
+#   select(hood_id, season, total_cases) |>
+#   group_by(season, hood_id) |>
+#   summarise(n = sum(total_cases)) |>
+#   pivot_wider(names_from = hood_id, values_from = n) %>%
+#   replace(is.na(.), 0) |>
+#   ungroup() |>
+#   arrange(season)
+# 
+# # Use kbl for the entire table creation and styling
+# kbl(season_relationship_df, booktabs = TRUE, linesep = "", 
+#     caption = "Homicide Cases in Most Frequent Neighborhoods by Season", 
+#     position = 'h', latex_options = "striped", font_size = 8, full_width = FALSE) |>
+#   column_spec(1, width = "2cm") |>
+#   add_header_above(c("", "Top 5 Neighborhoods" = 5), bold = TRUE)
+```
+
+
+```{r}
+```
+
+
+
+```{r}
+#| message: false
+#| echo: false
+#| label: tbl-top5_season
+#| tbl-cap: Homicide Cases in Most Frequent Neighborhoods by Season
+
+# Find the top 5 neighborhoods
+top_neighborhoods <- cleaned_homicide_data |>
+  group_by(hood_id) |>
+  summarise(total_cases = n()) |>
+  arrange(desc(total_cases)) |>
+  top_n(5)
+
+# Filter data for the top 5 neighborhoods
+top_neighborhood_data <- cleaned_homicide_data |>
+  filter(hood_id %in% top_neighborhoods$hood_id)
+
+# Create a table with the relationship between season and the number of cases in the top 5 neighborhoods
+season_relationship_table <- top_neighborhood_data |>
+  group_by(hood_id, season) |>
+  summarise(total_cases = n()) |>
+  arrange(hood_id, desc(total_cases))
+
+season_relationship_table$hood_id <- factor(season_relationship_table$hood_id,
+                                             levels = c("73", "25", "132", "26", "2"))
+# Transform the dataframe to the format required for printing as a table
+ season_relationship_df <- season_relationship_table |>
+   select(hood_id, season, total_cases) |>
+   group_by(season, hood_id) |>
+   summarize(n = sum(total_cases)) |>
+   pivot_wider(names_from = hood_id, values_from = n) %>%
+   replace(is.na(.), 0) |>
+   ungroup() |>
+   arrange(season)
+
+
+
+season_relationship_df %>%
+  gt() %>%
+  tab_header(
+    title = "Homicide Cases in Most Frequent Neighborhoods by Season"
+  ) %>%
+  fmt_number(
+    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    decimals = 0
+  ) %>%
+  tab_spanner(
+    label = "Top 5 Neighborhoods",
+    columns = vars(`73`, `25`, `132`, `26`, `2`)
+  ) %>%
+  fmt_number(
+    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    decimals = 0
+  )
+# kbl(season_relationship_df, booktabs = TRUE, linesep = "", caption = "Homicide Cases in Most Frequent Neighborhoods by Season", position = 'h' ) |>
+#   kable_styling(latex_options = "striped", font_size = 8, full_width = FALSE) |>
+#   column_spec(1, width = "2cm") |>
+#   add_header_above(c("", "Top 5 Neighborhoods" = 5), bold = TRUE)
+
+```
+
+
+```{r}
+#| message: false
+#| echo: false
+#| label: tbl-top5_dayofweek
+#| tbl-cap: homicide cases in most frequent neighborhoods by day of the week
+
+# create a table with the relationship between day of the week and the number of cases in the top 5 neighborhoods
+weekend_relationship_table <- top_neighborhood_data |>
+  group_by(hood_id, day_of_week) |>
+  summarise(total_cases = n()) |>
+  arrange(hood_id, desc(total_cases))
+
+weekend_relationship_table$hood_id <- factor(weekend_relationship_table$hood_id,
+                                             levels = c("73", "25", "132", "26", "2"))
+
+# transform the dataframe to the format required for printing as a table
+weekend_relationship_df <- weekend_relationship_table |>
+   select(hood_id, day_of_week, total_cases) |>
+   group_by(day_of_week, hood_id) |>
+   summarize(n = sum(total_cases)) |>
+   pivot_wider(names_from = hood_id, values_from = n) %>%
+   replace(is.na(.), 0) |>
+   ungroup() |>
+   arrange(day_of_week)
+
+weekend_relationship_df %>%
+  gt() %>%
+  tab_header(
+    title = "Homicide Cases in Most Frequent Neighborhoods by Season" ) %>%
+  fmt_number(
+    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    decimals = 0
+  ) %>%
+  tab_spanner(
+    label = "Top 5 Neighborhoods",
+    columns = vars(`73`, `25`, `132`, `26`, `2`)
+  ) %>%
+  fmt_number(
+    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    decimals = 0
+  )
+# kbl(weekend_relationship_df, booktabs = true, linesep = "", caption = "homicide cases in most frequent neighborhoods by day of the week", position = 'h') |>
+#   kable_styling(latex_options = "striped", font_size = 8, full_width = false) |>
+#   column_spec(1, width = "2cm") |>
+#   add_header_above(c("", "top 5 neighborhoods" = 5), bold = true)
+
+```
+
+```{r}
+#| message: false
+#| echo: false
+#| label: tbl-top5_homicidetype
+#| tbl-cap: Homicide Cases in Most Frequent Neighborhoods by Type
+
+
+# Create a table with the relationship between homicide type and the number of cases in the top 5 neighborhoods
+type_relationship_table <- top_neighborhood_data |>
+  group_by(hood_id, homicide_type) |>
+  summarise(total_cases = n()) |>
+  arrange(hood_id, desc(total_cases))
+
+type_relationship_table$hood_id <- factor(type_relationship_table$hood_id,
+                                             levels = c("73", "25", "132", "26", "2"))
+
+# Transform the dataframe to the format required for printing as a table
+type_relationship_df <- type_relationship_table |>
+   select(hood_id, homicide_type, total_cases) |>
+   group_by(homicide_type, hood_id) |>
+   summarize(n = sum(total_cases)) |>
+   pivot_wider(names_from = hood_id, values_from = n) %>%
+   replace(is.na(.), 0) |>
+   ungroup() |>
+   arrange(homicide_type)
+
+type_relationship_df %>%
+  gt() %>%
+  tab_header(
+    title = "Homicide Cases in Most Frequent Neighborhoods by Season" ) %>%
+  fmt_number(
+    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    decimals = 0
+  ) %>%
+  tab_spanner(
+    label = "Top 5 Neighborhoods",
+    columns = vars(`73`, `25`, `132`, `26`, `2`)
+  ) %>%
+  fmt_number(
+    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    decimals = 0
+  )
+# 
+# kbl(type_relationship_df, booktabs = TRUE, linesep = "", caption = "Homicide Cases in Most Frequent Neighborhoods by Type", position = 'h') |>
+#   kable_styling(latex_options = "striped", font_size = 8, full_width = FALSE) |>
+#   column_spec(1, width = "2cm") |>
+#   add_header_above(c("", "Top 5 Neighborhoods" = 5), bold = TRUE)
+
+```
+
+```
+
+ggplot(cleaned_homicide_data, aes(x = division,  y = occurrence_year, fill = homicide_count)) +
+  geom_tile() + 
+  labs(title = "Correlation Between Division and Homicide Cases (Heat Map)",
+       x = "Division",
+       y = "Year",
+       fill = "Homicide Cases") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+
+# 
+# Talk more about it.
+# 
+# And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
+# 
+# ```{r}
+# #| label: fig-planes
+# #| fig-cap: Relationship between wing length and width
+# #| echo: false
+# #| warning: false
+# #| message: false
+# 
+# analysis_data <- read_csv(here::here("outputs/data/analysis_data.csv"))
+# 
+# analysis_data |> 
+#   ggplot(aes(x = width, y = length)) +
+#   geom_point(alpha = 0.8) +
+#   theme_minimal() +
+#   labs(x = "Wing width (mm)",
+#        y = "Wing length (mm)")
+```
+
+
+
 
 
 # Results
 
-Our results are summarized in @tbl-modelresults.
+#Our results are summarized in @tbl-modelresults.
 
 ```{r}
 #| echo: false
@@ -139,28 +524,11 @@ Our results are summarized in @tbl-modelresults.
 #| warning: false
 #| message: false
 
-library(rstanarm)
-
-first_model <-
-  readRDS(file = here::here("outputs/models/first_model.rds"))
+# library(rstanarm)
+# 
+# first_model <-
+#   readRDS(file = here::here("outputs/models/first_model.rds"))
 ```
-
-```{r}
-#| echo: false
-#| eval: true
-#| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
-#| warning: false
-
-modelsummary::modelsummary(
-  list(
-    "First model" = first_model
-  ),
-  statistic = "mad",
-  fmt = 2
-)
-```
-
 
 
 
@@ -191,51 +559,13 @@ Weaknesses and next steps should also be included.
 
 ## Posterior predictive check
 
-In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
+#In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
 
-In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
+#In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
 
-```{r}
-#| eval: true
-#| echo: false
-#| message: false
-#| warning: false
-#| label: fig-ppcheckandposteriorvsprior
-#| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
-
-pp_check(first_model) +
-  theme_classic() +
-  theme(legend.position = "bottom")
-
-posterior_vs_prior(first_model) +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  theme(legend.position = "bottom") +
-  coord_flip()
-```
 
 ## Diagnostics
 
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
-
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
-
-plot(first_model, "trace")
-
-plot(first_model, "rhat")
-```
 
 
 

@@ -12,6 +12,7 @@ library(tidyverse)
 library(janitor)
 library(dplyr)
 library(readr)
+library(stringr)
 
 #### Clean data ####
 raw_data <- read_csv("inputs/data/raw_homicide_data.csv")
@@ -48,9 +49,9 @@ cleaned_homicide_data <-
 # find the day of the week of the homicide and determine if it is a weekend #
 cleaned_homicide_data <-
   cleaned_homicide_data |>
-  mutate(day_of_week = weekdays(occurrence_date),
-         weekend = ifelse(day_of_week %in% c("Saturday", "Sunday"), TRUE,
-                          FALSE))
+  mutate(day_of_week = weekdays(occurrence_date))
+         # weekend = ifelse(day_of_week %in% c("Saturday", "Sunday"), TRUE,
+         #                  FALSE))
                         
 # find the season when the homicide occurred #
 cleaned_homicide_data <-
@@ -62,12 +63,18 @@ cleaned_homicide_data <-
            TRUE ~ "Winter")
   )
 
-# Count the occurrence of homicides by year #
-cleaned_homicide_data <- 
-  cleaned_homicide_data |>
-  group_by(occurrence_year)|>
-  mutate(homicide_count = n())
-head(cleaned_homicide_data)
+# Extract only the date part (YYYY-MM-DD) from the date variable #
+
+cleaned_homicide_data$occurrence_date <- 
+  str_sub(cleaned_homicide_data$occurrence_date, 1, 10)
+
+
+# Count the occurrence of homicides every year #
+ cleaned_homicide_data <- 
+    cleaned_homicide_data |>
+    group_by(occurrence_year)|>
+    mutate(homicide_count = n())
+  head(cleaned_homicide_data)
 
 
 #### Save data ####
