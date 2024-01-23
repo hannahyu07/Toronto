@@ -14,6 +14,8 @@ library(knitr)
 library(janitor)
 library(lubridate)
 library(opendatatoronto)
+library(ggplot2)
+
 
 #### Simulate data ####
 
@@ -50,7 +52,6 @@ print(simulated_data)
 
 
 #Bar Plot for Homicide Type
-library(ggplot2)
 
 
 ggplot(simulated_data, aes(x = homicide_type, fill = homicide_type)) +

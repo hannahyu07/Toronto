@@ -39,7 +39,7 @@ cleaned_homicide_data <-
   cleaned_homicide_data |>
   select(
     occurrence_year, 
-    division,
+#    division,
     homicide_type,
     occurrence_date,
     hood_id

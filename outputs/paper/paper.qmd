@@ -1,14 +1,14 @@
 ---
 title: "Hannah Yu"
-subtitle: "My subtitle if needed"
 author: 
   - Hannah Yu
-thanks: "Code and data are available at: ."
+thanks: "Code and data are available at: "
 date: today
 date-format: long
 abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
 format: pdf
 number-sections: true
+toc: true
 bibliography: references.bib
 ---
 
@@ -25,6 +25,7 @@ bibliography: references.bib
 library(tidyverse)
 library(ggplot2)
 library(kableExtra)
+library(gt)
 
 #read in cleaned data #
 cleaned_homicide_data <- read.csv(here::here("inputs/data/cleaned_homicide_data.csv"))
@@ -32,21 +33,23 @@ show_col_types = FALSE
 ```
 
 
-# Introduction
+## Introduction
 
+The homicide rate plays a pivotal role in assessing the state of violence in society. In 2022, Canadian police services documented 874 cases of homicide, with 2.25 homicides per 100,000 people. With an 8% increase in the national homicide rate, this increase signifies the fourth consecutive annual rise in the national homicide rate [@citestatscan]. As one of Canada’s most vibrant and diverse cities, Toronto is the home of 2.93 million people. Toronto’s safety and stability are extremely important for all the residents of the city. Understanding the patterns, factors, and implications is important in ensuring Toronto’s public safety and establishing targeted interventions. 
 
+This research seeks to analyze the spatial and temporal distribution of Toronto’s homicide cases. By investigating whether specific times or certain areas are prone to be associated with homicide incidents, we want to shed light on the dynamics of and think about addressing and preventing future prevention for homicide cases. 
 
-You can and should cross-reference sections and sub-sections. 
+The Police Annual Statistical Report - Homicides [@citehomicidedata] from [@ropendatatoronto] provides a record of all homicide cases in Toronto from 2004-2020 including the time of occurrence, location, and type of homicide. we could draw information about homicide cases and their related characteristics from this extensive dataset, and investigate Toronto’s homicide patterns across time. In Section 2, I introduce the dataset and some general information. In Section 2.1 ## General Homicide Analysis, I navigate the change in homicide case numbers across time with various characteristics and perform some analysis on the relationship between homicide cases and time variables. And in Section 2.2, I redo most of the analysis on the top five neighborhood with the most amount of homicide cases. Lastly, I discuss the implications and further discussions on these results in Section 3. 
+
 
 The remainder of this paper is structured as follows. @sec-data....
 
 
+## Data {#sec-data}
 
-# Data {#sec-data}
+To investigate the homicide cases in Toronto, I obtained the dataset “ Police Annual Statistical Report - Homicides [@citehomicidedata] from the Toronto Open Data Portal [@ropendatatoronto]. Data was cleaned and analyzed using the open source statistical programming language R [@citer], with additional support from 'tidyverse' [@rtidyverse], 'dplyr' [@rdplyr], 'janitor'[@rjanitor], 'readr' [@rreadr] , 'stringr' [@rstringr], 'lubridate' [@rlubridate], 'ggplot2' [@rggplot2], 'kableExtra' [@rkableExtra], ''  Further details about data extraction and analyzation processes will be discussed in the following sections below. 
 
-To investigate the homicide cases in Toronto, I obtained the dataset “ Police Annual Statistical Report - Homicides (@citehomicidedata) from the Toronto Open Data Portal (@ropendatatoronto). Data was cleaned and analyzed using the open source statistical programming language R [@citer], with additional support from 'tidyverse' [@rtidyverse], 'ggplot2' [@rggplot2], 'kableExtra' [@rkableExtra],  Further details about data extraction and analyzation processes will be discussed in the following sections below. 
-
-This dataset includes a thorough list of alongside every homicide case in Toronto from the year 2004-2020. We cleaned the dataset and selected variables that are relevant to our analysis of homicide cases. Our variable of interest includes the year the offence occurred, police division where the offence occurred, type of homicide (shooting, stabbing, other), date of offence, and identifier of neighbourhood using Toronto’s 158 neighbourhood structure. In addition to these variables, we also constructed three more variables: day of the week when the offence occurred (Monday-Sunday), weekend? season when the offence occurred (fall, winter, spring, summer), and count of homicide cases by year to further aid our data analysis (See summary statistics). This dataset was last refreshed on January 11, 2024. 
+This dataset includes a thorough list of alongside every homicide case in Toronto from the year 2004-2020. We cleaned the dataset and selected variables that are relevant to our analysis of homicide cases. Our variable of interest includes the year the offence occurred, type of homicide (shooting, stabbing, other), date of offence, and identifier of neighborhood using Toronto’s 140 neighborhood structure. In addition to these variables, we also constructed three more variables: day of the week when the offence occurred (Monday-Sunday), season when the offence occurred (fall, winter, spring, summer), and count of homicide cases by year to further aid our data analysis [@tbl-cleaned_data]. This dataset was last refreshed on January 11, 2024. 
 
 
 ```{r}
@@ -57,12 +60,14 @@ This dataset includes a thorough list of alongside every homicide case in Toront
 
 head (cleaned_homicide_data, 5) |>
   kable(
-    col.names = c("Year", "Division", "Homicide Type", "Date", "Hood ID", "Day of the Week", "Season", "Homicide Count"),
+    col.names = c("Year", "Homicide Type", "Date", "Hood ID", "Day of the Week", "Season", "Homicide Count"),
   booktabs = TRUE
   )
 
 ```
-We listed out the number of homicide cases each year in Table 2 and created the summary statistics table of the homicide count per year. We found the year 2011 has the least cases of homicide with only 51 cases while the year 2018 with the total of 97 cases has the most number of homicide cases. 
+## General Homicide Analysis
+
+We listed out the number of homicide cases each year in @tbl-homicide_count and created the summary statistics table of the homicide count per year. We found the year 2011 has the least cases of homicide with only 51 cases while the year 2018 with the total of 97 cases has the most number of homicide cases. 
 
 ```{r}
 #| message: false
@@ -75,33 +80,24 @@ homicide_counts_by_year <- cleaned_homicide_data |>
   group_by(occurrence_year) |>
   summarise(total_cases = n())
 #installed.packages("git")
-library(gt)
 
-homicide_counts_by_year %>%
-  gt() %>%
+homicide_counts_by_year |>
+  gt() |>
   tab_header(
     title = "Total Homicide Cases Each Year"
-  ) %>%
+  ) |>
   fmt_number(
-    columns = vars(total_cases),
+    columns = c(total_cases),
     decimals = 0
   )
 
-# # Assuming 'occurrence_year' is the column containing the year information
-# homicide_counts_by_year <- cleaned_homicide_data |>
-#   group_by(occurrence_year) |>
-#   summarise(total_cases = n())
-# 
-# # Print the resulting table
-# kable(homicide_counts_by_year, caption = "Total Homicide Cases Each Year")
-
 ```
-Of all the homicide cases, the cases caused by shooting is significantly higher than other type of homicides. In the years of our examination, shooting takes up more than 600 cases of homicides while stabbing takes over more than 250, and all other types together takes up around 300. 
+Of all the homicide cases, the cases caused by shooting is significantly higher than other type of homicides. In the years of our examination, shooting takes up more than 600 cases of homicides while stabbing takes over more than 250, and all other types together takes up around 300 (@fig-distribution_by_type). 
 
-```{r,out.width='20%', echo=FALSE}
+```{r,out.width='70%', echo=FALSE}
 #| message: false
 #| echo: false
-#| label: fig - distribution_by_type
+#| label: fig-distribution_by_type
 #| fig-cap: Distribution of Homicide Types
 
 ggplot(cleaned_homicide_data, aes(x = homicide_type)) +
@@ -112,9 +108,8 @@ ggplot(cleaned_homicide_data, aes(x = homicide_type)) +
   theme_minimal()
 
 ```
-We then shift our attention to the homicide trend over time. Figure 2 portrays the trend of homicide cases throughout the span of almost 2 decades. With the obvious fluctuations, We do not observe a clear increase or decrease of cases across time. However, the homicide cases are decreasing after it peaked in 2018. 
+We then shift our attention to the homicide trend over time. @fig-occurrence portrays the trend of homicide cases throughout the span of almost 2 decades. With no obvious trend, We do not observe a clear increase or decrease of cases across time. However, the homicide cases are decreasing after it peaked in 2018. 
 
-Following the grand picture across time, Figure 3 breaks down the homicide cases over time into further details based on the type of homicide. The trend of the three types of homicide cases generally follow the overall trend in figure 2. Shooting always prevail over other types of homicide cases even in its lowest year. We conclude that there is no clear increase or decrease of homicide across time. 
 ```{r}
 #| message: false
 #| echo: false
@@ -132,6 +127,9 @@ ggplot(cleaned_homicide_data, aes(x = occurrence_year, y = homicide_count, group
        y = "Number of Homicides") +
   theme_minimal()
 ```
+Following the grand picture across time, @fig-specific_occurrence breaks down the homicide cases over time into further details based on the type of homicide. The trend of the three types of homicide cases generally follow the overall trend in @fig-occurrence. Shooting always prevail over other types of homicide cases even in its lowest year. We conclude that there is no clear increase or decrease of homicide across time. 
+
+
 ```{r}
 #| message: false
 #| echo: false
@@ -154,7 +152,7 @@ ggplot(count_by_type,
 
 ```
 
-We want to determine whether if there are a specific time in the year when homicides are more likely to occurr. To investigate our interest, we created figure 4 that displays the homicide counts by every day of the week. Sunday with a total of 200 cases is the day with the most cases following by Saturday and Friday with 197 and 175 respectively. Thursday is the day with the least cases with 124 cases. We conclude that homicides are more likely to occur in weekends. 
+We want to determine whether if there are a specific time in the year when homicides are more likely to occurr. To investigate our interest, we created @fig-case_by_week that displays the homicide counts by every day of the week. Sunday with a total of 200 cases is the day with the most cases following by Saturday and Friday with 197 and 175 respectively. Thursday is the day with the least cases with 124 cases. We conclude that homicides are slightly more likely to occur in weekends. 
 
 ```{r}
 #| message: false
@@ -175,7 +173,7 @@ print(homicide_counts_by_day)
 ```{r}
 #| message: false
 #| echo: false
-#| label: fig-case_by_week1
+#| label: fig-case_by_week
 #| fig-cap: Distribution of Homicide Cases by Day of the Week
 
 cleaned_homicide_data$day_of_week <- factor(cleaned_homicide_data$day_of_week, 
@@ -186,16 +184,19 @@ ggplot(cleaned_homicide_data, aes(x = day_of_week, fill = day_of_week)) +
   labs(title = "Distribution of Homicide Cases by Day of the Week",
        x = "Day of the Week",
        y = "Number of Homicides") +
+  scale_x_discrete(labels = c("Monday" = "Mon.", "Tuesday" = "Tue.", "Wednesday" = "Wed.", 
+                              "Thursday" = "Thu.", "Friday" = "Fri.", "Saturday" = "Sat.", "Sunday" = "Sun.")) +
   theme_minimal()
+
 
 ```
 
-We perform similar analysis with the count of homicide cases by season and found that the seasonal data are distributed somewhat evenly with fall having slightly more cases than other weather but the differnece is to small and not worth noting. 
+We perform similar analysis with the count of homicide cases by season and found that the seasonal data are distributed somewhat evenly with fall having slightly more cases than other weather but the difference is to small and not worth noting @fig-case_by_season. 
 ```{r}
 #| message: false
 #| echo: false
-#| label: tbl-case_by_season
-#| tbl-cap: Distribution of Homicide Cases by Season
+#| label: fig-case_by_season
+#| fig-cap: Distribution of Homicide Cases by Season
 
 cleaned_homicide_data$season <- factor(cleaned_homicide_data$season, 
                                              levels = c("Fall", "Winter", "Spring", "Summer"))
@@ -206,7 +207,7 @@ ggplot(cleaned_homicide_data, aes(x = factor(season), fill = season)) +
        y = "Number of Homicides") +
   theme_minimal()
 ```
-To investigate the relationship between geographical location and homicide cases, we constructed figure . This bar plot illustrates the distribution of homicide cases in Toronto's 140 neighborhoods. This visualization enables the identification of patterns or areas of concerns in the city. While most neighborhoods have fewer than 10 cases, we notice that several neighborhoods stand out with significantly higher homicide incidences compared to the rest. 
+To investigate the relationship between geographical location and homicide cases, we constructed @fig-neighborhoods_distribution. This bar plot illustrates the distribution of homicide cases in Toronto's 140 neighborhoods. This visualization enables the identification of patterns or areas of concerns in the city. While most neighborhoods have fewer than 10 cases, we notice that several neighborhoods stand out with significantly higher homicide incidences compared to the rest. 
 
 ```{r}
 #| message: false
@@ -228,33 +229,15 @@ ggplot(cleaned_homicide_data, aes(x = hood_id)) +
 
 
 ```
+## Homicide Analysis in Top Five Neighborhood
 
+Having observed the obvious significantly higher cases of homicide in several neighborhoods, I selected the five neighborhoods with the highest amount of homicide cases and performed the following analysis that focus on these five neighborhoods. The ids of the five neighborhoods are 73, 25, 132, 26, 2 respectively with neighborhood 73 having the highest number of cases of 31 and neighborhood 2 with 28 cases. Through these analysis, we could understand if there is specific patterns or trends in the occurrence of homicide incidences in these top five neighborhoods and genearlize the conclusion in larger areas. 
 
-```{r}
- #| message: false
- #| echo: false
- #| include: false
- #| label: tbl-top_neighborhood_table
- #| tbl-cap: Top Neighborhood Table
- 
- top_hood_table <- cleaned_homicide_data %>%
-   group_by(hood_id) %>%
-   summarise(total_homicides = n()) %>%
-   arrange(desc(total_homicides)) %>%
-   head(5) %>%
-   inner_join(cleaned_homicide_data, by = "hood_id") %>%
-   select(hood_id, season, day_of_week, occurrence_year, homicide_type)
- 
- # Print the resulting table
- print(top_hood_table)
-
-```
-
+In order to observe the relationship between relating factors and homicide cases, I investigate the correlation of the occurrence of each case with each day of the week, each season, and type of homicide (@tbl-top5_dayofweek, @tbl-top5_season, @tbl-top5_homicidetype). We do not observe a specific trend in the relation between homicide cases and day of the week. Just like our previous analysis on @fig-case_by_season, the correlation between the number of homicide cases and with a specific day of the week or the weekends are also not noticeable. We could also attribute this result to the fact that our sample size is not big enough to observe a difference as there are only limited amount of homicide cases in the city. However, we do notice that just like the previous, the amount of homicide caused by shooting is higher than any other methods in each of the top five neighborhoods. This is a confirmation that shooting is the main type of homicide in Toronto. 
 ```{r}
 #| message: false
-#| echo: false
 #| include: false
-#| label: tbl-top _eighborhood_table2
+#| label: tbl-top _neighborhood_table2
 #| tbl-cap: Top Neighborhood Table 2
 
 top5_frequent_hood <- cleaned_homicide_data %>%
@@ -264,55 +247,8 @@ top5_frequent_hood <- cleaned_homicide_data %>%
   head(5)
 
 # Print or further analyze the top 5 frequent divisions
-top5_frequent_hood
+print(top5_frequent_hood)
 ```
-```{r}
-# #| message: false
-# #| echo: false
-# #| label: tbl-top5_season
-# #| tbl-cap: Homicide Cases in Most Frequent Neighborhoods by Season
-# 
-# # Find the top 5 neighborhoods
-# top_neighborhoods <- cleaned_homicide_data |>
-#   group_by(hood_id) |>
-#   summarise(total_cases = n()) |>
-#   arrange(desc(total_cases)) |>
-#   top_n(5)
-# 
-# # Filter data for the top 5 neighborhoods
-# top_neighborhood_data <- cleaned_homicide_data |>
-#   filter(hood_id %in% top_neighborhoods$hood_id)
-# 
-# # Create a table with the relationship between season and the number of cases in the top 5 neighborhoods
-# season_relationship_table <- top_neighborhood_data |>
-#   group_by(hood_id, season) |>
-#   summarise(total_cases = n()) |>
-#   arrange(hood_id, desc(total_cases))
-# 
-# season_relationship_table$hood_id <- factor(season_relationship_table$hood_id,
-#                                              levels = c("73", "25", "132", "26", "2"))
-# # Transform the dataframe to the format required for printing as a table
-# season_relationship_df <- season_relationship_table |>
-#   select(hood_id, season, total_cases) |>
-#   group_by(season, hood_id) |>
-#   summarise(n = sum(total_cases)) |>
-#   pivot_wider(names_from = hood_id, values_from = n) %>%
-#   replace(is.na(.), 0) |>
-#   ungroup() |>
-#   arrange(season)
-# 
-# # Use kbl for the entire table creation and styling
-# kbl(season_relationship_df, booktabs = TRUE, linesep = "", 
-#     caption = "Homicide Cases in Most Frequent Neighborhoods by Season", 
-#     position = 'h', latex_options = "striped", font_size = 8, full_width = FALSE) |>
-#   column_spec(1, width = "2cm") |>
-#   add_header_above(c("", "Top 5 Neighborhoods" = 5), bold = TRUE)
-```
-
-
-```{r}
-```
-
 
 
 ```{r}
@@ -340,6 +276,7 @@ season_relationship_table <- top_neighborhood_data |>
 
 season_relationship_table$hood_id <- factor(season_relationship_table$hood_id,
                                              levels = c("73", "25", "132", "26", "2"))
+
 # Transform the dataframe to the format required for printing as a table
  season_relationship_df <- season_relationship_table |>
    select(hood_id, season, total_cases) |>
@@ -352,27 +289,23 @@ season_relationship_table$hood_id <- factor(season_relationship_table$hood_id,
 
 
 
-season_relationship_df %>%
-  gt() %>%
+season_relationship_df |>
+  gt() |>
   tab_header(
     title = "Homicide Cases in Most Frequent Neighborhoods by Season"
-  ) %>%
+  )  |>
   fmt_number(
-    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    columns = c(`73`, `25`, `132`, `26`, `2`),
     decimals = 0
-  ) %>%
+  )  |>
   tab_spanner(
     label = "Top 5 Neighborhoods",
-    columns = vars(`73`, `25`, `132`, `26`, `2`)
-  ) %>%
+    columns = c(`73`, `25`, `132`, `26`, `2`)
+  ) |>
   fmt_number(
-    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    columns = c(`73`, `25`, `132`, `26`, `2`),
     decimals = 0
   )
-# kbl(season_relationship_df, booktabs = TRUE, linesep = "", caption = "Homicide Cases in Most Frequent Neighborhoods by Season", position = 'h' ) |>
-#   kable_styling(latex_options = "striped", font_size = 8, full_width = FALSE) |>
-#   column_spec(1, width = "2cm") |>
-#   add_header_above(c("", "Top 5 Neighborhoods" = 5), bold = TRUE)
 
 ```
 
@@ -402,26 +335,23 @@ weekend_relationship_df <- weekend_relationship_table |>
    ungroup() |>
    arrange(day_of_week)
 
-weekend_relationship_df %>%
-  gt() %>%
+weekend_relationship_df |>
+  gt()|>
   tab_header(
-    title = "Homicide Cases in Most Frequent Neighborhoods by Season" ) %>%
+    title = "Homicide Cases in Most Frequent Neighborhoods by Day of the Week" ) |>
   fmt_number(
-    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    columns = c(`73`, `25`, `132`, `26`, `2`),
     decimals = 0
-  ) %>%
+  ) |>
   tab_spanner(
     label = "Top 5 Neighborhoods",
-    columns = vars(`73`, `25`, `132`, `26`, `2`)
-  ) %>%
+    columns = c(`73`, `25`, `132`, `26`, `2`)
+  )  |>
   fmt_number(
-    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    columns = c(`73`, `25`, `132`, `26`, `2`),
     decimals = 0
   )
-# kbl(weekend_relationship_df, booktabs = true, linesep = "", caption = "homicide cases in most frequent neighborhoods by day of the week", position = 'h') |>
-#   kable_styling(latex_options = "striped", font_size = 8, full_width = false) |>
-#   column_spec(1, width = "2cm") |>
-#   add_header_above(c("", "top 5 neighborhoods" = 5), bold = true)
+
 
 ```
 
@@ -451,120 +381,38 @@ type_relationship_df <- type_relationship_table |>
    ungroup() |>
    arrange(homicide_type)
 
-type_relationship_df %>%
-  gt() %>%
+type_relationship_df |>
+  gt()  |>
   tab_header(
-    title = "Homicide Cases in Most Frequent Neighborhoods by Season" ) %>%
+    title = "Homicide Types in Most Frequent Neighborhoods" )  |>
   fmt_number(
-    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    columns = c(`73`, `25`, `132`, `26`, `2`),
     decimals = 0
   ) %>%
   tab_spanner(
     label = "Top 5 Neighborhoods",
-    columns = vars(`73`, `25`, `132`, `26`, `2`)
+    columns = c(`73`, `25`, `132`, `26`, `2`)
   ) %>%
   fmt_number(
-    columns = vars(`73`, `25`, `132`, `26`, `2`),
+    columns = c(`73`, `25`, `132`, `26`, `2`),
     decimals = 0
   )
-# 
-# kbl(type_relationship_df, booktabs = TRUE, linesep = "", caption = "Homicide Cases in Most Frequent Neighborhoods by Type", position = 'h') |>
-#   kable_styling(latex_options = "striped", font_size = 8, full_width = FALSE) |>
-#   column_spec(1, width = "2cm") |>
-#   add_header_above(c("", "Top 5 Neighborhoods" = 5), bold = TRUE)
+
 
 ```
+`
 
-```
+## Discussion
 
-ggplot(cleaned_homicide_data, aes(x = division,  y = occurrence_year, fill = homicide_count)) +
-  geom_tile() + 
-  labs(title = "Correlation Between Division and Homicide Cases (Heat Map)",
-       x = "Division",
-       y = "Year",
-       fill = "Homicide Cases") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+The result of our general analysis of homicide cases by season and by each day of the week throughout Toronto generally align with our specific focus into the top five highest homicide cases neighborhoods. We cannot obverse any significant correlation between homicidece occurrences and particular timings. Homicides may have a slightly higher chance in occurring on a weekend than weekdays and are not more likely to occur in a particular season. 
 
+However, one characteristics that stand out throughout the entirety of our analysis is that how shooting is always the highest type of homicide. It started as the highest cause of homicide in 2004 and remained until 2020. We could conclude that is the highest cause of homicide across time.
 
+We do not observe a general increase or decrease of homicide cases throughout time. However, afte the number of homicide cases peaked in 2018, the cases are experiencing a decline. Cases caused by shooting are also in decline during the same period. This decline may be associated with how Toronto gun violence has dropped by 30% over the past five years (@dropingun).
 
-# 
-# Talk more about it.
-# 
-# And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
-# 
-# ```{r}
-# #| label: fig-planes
-# #| fig-cap: Relationship between wing length and width
-# #| echo: false
-# #| warning: false
-# #| message: false
-# 
-# analysis_data <- read_csv(here::here("outputs/data/analysis_data.csv"))
-# 
-# analysis_data |> 
-#   ggplot(aes(x = width, y = length)) +
-#   geom_point(alpha = 0.8) +
-#   theme_minimal() +
-#   labs(x = "Wing width (mm)",
-#        y = "Wing length (mm)")
-```
+Our analysis would be more comprehensive if there are more detailed data about more relevant characteristics about homicides and more cases of homicide. But due to the scope of our dataset and the nature of homicide occurrences being generally rare compared to other research topics, it is very hard to give out a firm statement such as a certain factor causes more homicide incidences or homicide incidences are more likely to happen on a certain dates. 
 
-
-
-
-
-# Results
-
-#Our results are summarized in @tbl-modelresults.
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-# library(rstanarm)
-# 
-# first_model <-
-#   readRDS(file = here::here("outputs/models/first_model.rds"))
-```
-
-
-
-# Discussion
-
-## First discussion point {#sec-first-point}
-
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
-
-## Second discussion point
-
-## Third discussion point
-
-## Weaknesses and next steps
-
-Weaknesses and next steps should also be included.
-
-\newpage
-
-\appendix
-
-# Appendix {-}
-
-
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Posterior predictive check
-
-#In @fig-ppcheckandposteriorvsprior-1 we implement a posterior predictive check. This shows...
-
-#In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. This shows... 
-
-
-## Diagnostics
+ 
 
 
 
@@ -572,6 +420,6 @@ Weaknesses and next steps should also be included.
 \newpage
 
 
-# References
+## References
 
 
