@@ -24,26 +24,16 @@ library(ggplot2)
 # The weekday variable only include the days of the week from Monday to Sunday.
 # The homicide_type variable only include the following categories: "Shooting," "Stabbing," and "Other." 
 # The neighborhood_number variable include integers ranging from 1 to 140.
-# Columns: year, month, day, weekday, homicide_type, neighborhood_number
+# Columns: year, weekday, homicide_type, neighborhood_number, month, day, date
 
 #### Simulate Toronto Homicide Data ####
 #based on code from: https://tellingstorieswithdata.com/02-drinking_from_a_fire_hose.html#simulate
 
 set.seed(853)
 
-num_obs <- 1398
+num_obs <- 1167
 
-simulated_data <- 
-  tibble(
-    year = sample(2004:2020, num_obs, replace = TRUE),
-    #month = sample(1:12, num_obs, replace = TRUE),
-    #day = sample(1:31, num_obs, replace = TRUE),
-    weekday = sample(c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday",
-                       "Friday", "Saturday"), num_obs, replace = TRUE),
-    homicide_type = sample(c("Shooting", "Stabbing", "Other"),  num_obs,
-                           replace = TRUE),
-    neighborhood_number = sample(1:140, num_obs, replace = TRUE),
-)
+# Create year, weekday, homicide_type, and neighborhood_number columns
 
 simulated_data <- 
   tibble(
@@ -67,8 +57,7 @@ simulated_data <-
 print(simulated_data)
 
 
-#Bar Plot for Homicide Type
-
+# Bar Plot for Homicide Type
 
 ggplot(simulated_data, aes(x = homicide_type, fill = homicide_type)) +
   geom_bar() +
@@ -76,7 +65,7 @@ ggplot(simulated_data, aes(x = homicide_type, fill = homicide_type)) +
        y = "Count") +
   theme_minimal()
 
-#Histogram for Neighborhood Number
+# Histogram for Neighborhood Number
 
 ggplot(simulated_data, aes(x = neighborhood_number)) +
   geom_histogram(binwidth = 1, fill = "blue", color = "black") +

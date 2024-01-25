@@ -26,15 +26,15 @@ raw_homicide_data <-
     show_col_type = FALSE
   )
 
-# Make the names easier to type 
+# Make the names easier to type #
 cleaned_homicide_data <-
   clean_names(raw_homicide_data)
 
-# Have a look at the first six rows
+# Have a look at the first six rows #
 head(cleaned_homicide_data)
 
 
-# select columns of interest #
+# Select columns of interest 
 cleaned_homicide_data <-
   cleaned_homicide_data |>
   select(
@@ -45,7 +45,7 @@ cleaned_homicide_data <-
   )
 
 
-# find the day of the week of the homicide and determine if it is a weekend #
+# Find the day of the week of the homicide and determine if it is a weekend #
 cleaned_homicide_data <-
   cleaned_homicide_data |>
   mutate(day_of_week = weekdays(occurrence_date))
