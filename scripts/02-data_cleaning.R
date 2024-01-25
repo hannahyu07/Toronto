@@ -39,7 +39,6 @@ cleaned_homicide_data <-
   cleaned_homicide_data |>
   select(
     occurrence_year, 
-#    division,
     homicide_type,
     occurrence_date,
     hood_id
@@ -50,8 +49,6 @@ cleaned_homicide_data <-
 cleaned_homicide_data <-
   cleaned_homicide_data |>
   mutate(day_of_week = weekdays(occurrence_date))
-         # weekend = ifelse(day_of_week %in% c("Saturday", "Sunday"), TRUE,
-         #                  FALSE))
                         
 # find the season when the homicide occurred #
 cleaned_homicide_data <-
